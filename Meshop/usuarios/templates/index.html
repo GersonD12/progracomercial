@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    {# Cargamos la libreria #}
+    {% load bootstrap4 %}
+
+    {# CSS Bootstrap #}
+    {% bootstrap_css %}
+</head>
+<body>    
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th width="35%">Nombre</th>
+                <th>Carnet</th>
+                <th>Correo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.nombre }}</td>
+                <td>{{ usuario.carnet }}</td>
+                <td>{{ usuario.correo }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {# JS y jQuery Bootstrap #}
+    {% bootstrap_javascript jquery='full' %}
+</body>
+</html>
