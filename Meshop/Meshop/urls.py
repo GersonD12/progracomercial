@@ -17,12 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from usuarios.views import Usuarios
+from usuarios.views import signIn, postsignIn, signUp, logout, postsignUp
 
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     #path('admin/', admin.site.urls),
-    path('usuarios/', Usuarios.as_view(), name="index"),
+    path('', signIn),
+    path('postsignIn/', postsignIn),
+    path('signUp/', signUp, name="signup"),
+    path('logout/', logout, name="log"),
+    path('postsignUp/', postsignUp),
 ]
