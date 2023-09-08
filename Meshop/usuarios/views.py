@@ -1,6 +1,25 @@
 from django.shortcuts import render
 import pyrebase
- 
+import bcrypt
+
+
+
+import firebase_admin
+from firebase_admin import credentials
+
+# Inicializa Firebase
+firebase_cred = credentials.Certificate("./meshopbd-98f09-firebase-adminsdk-rphby-317642e68a.json")
+firebase_admin.initialize_app(firebase_cred, {'databaseURL': 'https://meshopbd-98f09-default-rtdb.firebaseio.com/'})
+
+from firebase_admin import db
+
+
+
+
+
+
+
+
 """ https://www.geeksforgeeks.org/django-authentication-project-with-firebase/ """
 config = {
   'apiKey': "AIzaSyA1TvbOsiMLij3qXRjGuuII4uNhRNMKUnQ",
@@ -15,12 +34,10 @@ config = {
 firebase=pyrebase.initialize_app(config)
 authe = firebase.auth()
 database=firebase.database()
- 
 def signIn(request):
     return render(request,"Login.html")
 def home(request):
     return render(request,"Home.html")
- 
 def postsignIn(request):
     email=request.POST.get('email')
     pasw=request.POST.get('pass')
@@ -33,17 +50,15 @@ def postsignIn(request):
     session_id=user['idToken']
     request.session['uid']=str(session_id)
     return render(request,"Home.html",{"email":email})
- 
 def logout(request):
     try:
         del request.session['uid']
     except:
         pass
     return render(request,"Login.html")
- 
 def signUp(request):
     return render(request,"Registration.html")
- 
+
 def postsignUp(request):
      email = request.POST.get('email')
      passs = request.POST.get('pass')
@@ -54,14 +69,18 @@ def postsignUp(request):
         uid = user['localId']
         idtoken = request.session['uid']
         print(uid)
-        """ bbrrr """
-        data = {
-            "nombre": "Ejemplo",
-            "edad": 30
-        }
-        database.child("ejemplo").push(data)
-
-        """ Brrr """
+        print("mike es gay1")
      except:
+        ref = db.reference('usuarios')
+        hashed_password = bcrypt.hashpw(passs.encode('utf-8'), bcrypt.gensalt())
+        # Datos de ejemplo que deseas almacenar
+        data = {
+            "nombre": name,
+            "email": email,
+            "password": hashed_password.decode('utf-8')
+        }
+        # Agregar los datos a la base de datos
+        ref.push(data)
         return render(request, "Registration.html")
+     print("mike es gay3")
      return render(request,"Login.html")
