@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import pyrebase
  
- 
+""" https://www.geeksforgeeks.org/django-authentication-project-with-firebase/ """
 config = {
   'apiKey': "AIzaSyA1TvbOsiMLij3qXRjGuuII4uNhRNMKUnQ",
   'authDomain': "meshopbd-98f09.firebaseapp.com",
@@ -54,6 +54,14 @@ def postsignUp(request):
         uid = user['localId']
         idtoken = request.session['uid']
         print(uid)
+        """ bbrrr """
+        data = {
+            "nombre": "Ejemplo",
+            "edad": 30
+        }
+        database.child("ejemplo").push(data)
+
+        """ Brrr """
      except:
         return render(request, "Registration.html")
      return render(request,"Login.html")
