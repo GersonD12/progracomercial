@@ -20,6 +20,7 @@ config = {
   'messagingSenderId': "224883523457",
   'appId': "1:224883523457:web:934b1d249bec8e2b313280"
 }
+
 # Initialising database,auth and firebase for further use
 firebase=pyrebase.initialize_app(config)
 authe = firebase.auth()
@@ -65,7 +66,6 @@ def postsignUp(request):
         uid = user['localId']
         idtoken = request.session['uid']
         print(uid)
-        print("mike es gay1")
      except:
         ref = db.reference('usuarios')
         hashed_password = bcrypt.hashpw(passs.encode('utf-8'), bcrypt.gensalt())
@@ -79,3 +79,44 @@ def postsignUp(request):
         ref.push(data)
         return render(request, "Registration.html")
      return render(request,"Login.html")
+
+# Productos
+def createProduct(request):
+    # Obtén el ID del usuario autenticado
+    #user_id = request.user.uid
+    user_id = "NexEqZCtLZHHt-r3TgW"
+
+    nombre_producto = request.POST.get('nombre_producto')
+    descripcion_producto = request.POST.get('descripcion_producto')
+    precio = request.POST.get('precio')
+    stock = request.POST.get('stock')
+    categoria_producto = request.POST.get('categoria_producto') # Relacionado con tabla categoria
+    proveedor = request.POST.get('proveedor') # Relacionado con tabla proveedor
+    imagen = request.POST.get('imagen')
+    
+    ref = db.reference('productos')
+    data = {
+        "nombre_producto": nombre_producto,
+        "descripcion_producto": descripcion_producto,
+        "precio": precio,
+        "stock": stock,
+        "categoria_producto": categoria_producto,
+        "proveedor": proveedor,
+        "imagen": imagen,
+        "user_id": user_id
+    }
+    # Agregar los datos a la base de datos
+    ref.push(data)
+    return render(request,"ProductCreate.html")
+
+def listProductsForUser(request):
+    # Obtén el ID del usuario autenticado
+    #user_id = request.user.uid
+    #user_id = "NexEqZCtLZHHt-r3TgW"  # Reemplaza esto con la forma real de obtener el ID del usuario autenticado
+    user_id = "Ndp6ZdoQGeFDa0TVi2k"
+
+    # Consulta la base de datos para obtener los productos del usuario
+    ref = db.reference('productos')
+    products = ref.order_by_child('user_id').equal_to(user_id).get()
+
+    return render(request, "ProductList.html", {'products': products})

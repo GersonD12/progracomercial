@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Productos</title>
+</head>
+<body>
+    <h1>Lista de Productos</h1>
+    <ul>
+        {% for key, product in products.items %}
+            <li>
+                <strong>Nombre del Producto:</strong> {{ product.nombre_producto }}<br>
+                <strong>Descripción:</strong> {{ product.descripcion_producto }}<br>
+                <strong>Precio:</strong> {{ product.precio }}<br>
+                <strong>Stock:</strong> {{ product.stock }}<br>
+                <strong>Categoría:</strong> {{ product.categoria_producto }}<br>
+                <strong>Proveedor:</strong> {{ product.proveedor }}<br>
+                <img src="{{ product.imagen }}" alt="{{ product.nombre_producto }}" width="100"><br>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
