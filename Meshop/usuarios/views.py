@@ -4,6 +4,9 @@ import bcrypt
 import firebase_admin
 from firebase_admin import credentials
 
+#Prueba - Instale fuzzywuzzy
+from fuzzywuzzy import fuzz
+
 # Inicializa Firebase
 firebase_cred = credentials.Certificate("./meshopbd-98f09-firebase-adminsdk-rphby-317642e68a.json")
 firebase_admin.initialize_app(firebase_cred, {'databaseURL': 'https://meshopbd-98f09-default-rtdb.firebaseio.com/'})
@@ -110,13 +113,34 @@ def createProduct(request):
     return render(request,"ProductCreate.html")
 
 def listProductsForUser(request):
-    # Obtén el ID del usuario autenticado
     #user_id = request.user.uid
-    #user_id = "NexEqZCtLZHHt-r3TgW"  # Reemplaza esto con la forma real de obtener el ID del usuario autenticado
-    user_id = "Ndp6ZdoQGeFDa0TVi2k"
+    user_id = "NexEqZCtLZHHt-r3TgW"
+    #user_id = "Ndp6ZdoQGeFDa0TVi2k"
 
     # Consulta la base de datos para obtener los productos del usuario
     ref = db.reference('productos')
     products = ref.order_by_child('user_id').equal_to(user_id).get()
 
     return render(request, "ProductList.html", {'products': products})
+
+def searchProduct(request):
+    if request.method == 'POST':
+        #Recibe el texto de la busqueda de HTML
+        search_text = request.POST.get('search_text', '') 
+
+        # Se obtienen los productos
+        ref = db.reference('productos')
+        products = ref.get()
+
+        # Realiza la búsqueda y almacenar los productos con un 40% de match
+        results = []
+        for product_id, product_data in products.items():
+            product_name = product_data.get('nombre_producto', '')
+            #Funcion fuzz para saber el % de match
+            similarity = fuzz.token_sort_ratio(search_text, product_name)
+            #Se almacena si es mayor a 40%
+            if similarity >= 40:
+                results.append(product_data)
+        #Se retorna la vista con los resultados cargados        
+        return render(request, "SearchProducts.html", {'results': results})
+    return render(request, "Login.html")

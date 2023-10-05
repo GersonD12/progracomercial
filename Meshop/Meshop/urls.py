@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 
 from usuarios.views import signIn, postsignIn, signUp, logout, postsignUp
-from usuarios.views import createProduct, listProductsForUser
+from usuarios.views import createProduct, listProductsForUser, searchProduct
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -17,4 +17,6 @@ urlpatterns = [
     # Productos
     path('product/create', createProduct),
     path('product/list', listProductsForUser),
+    path('product/search', searchProduct, name='searchProduct')
+
 ]
