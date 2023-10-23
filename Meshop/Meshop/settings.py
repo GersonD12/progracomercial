@@ -12,10 +12,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
+from supabase import create_client
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -77,13 +78,26 @@ WSGI_APPLICATION = 'Meshop.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+#Credenciales para la conexión a Supabase
+#SUPABASE_URL = 'db.xxsokkjmymtxxqvbvxyb.supabase.co'
+#SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4c29ra2pteW10eHhxdmJ2eHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTc1MDAwMjAsImV4cCI6MjAxMzA3NjAyMH0.uELNrcwRKQ_mVdJueW_lv94_hSp03ME4Dfg5qdtfbvs'
+
+load_dotenv()
+SUPABASE_URL = os.environ.get('SUPABASE_URL')
+SUPABASE_API_KEY = os.environ.get('SUPABASE_KEY')
+
+supabase = create_client(SUPABASE_URL, SUPABASE_API_KEY)
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'cTjUS7duFU7OuCbL',
+        'HOST': 'db.xxsokkjmymtxxqvbvxyb.supabase.co',
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
