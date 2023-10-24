@@ -2,9 +2,9 @@
 import axios from 'axios';
 
 // Conexiones para Carreras
-export const getCarreras = async (datos) => {
+export const getTerminos = async (datos) => {
     try {
-        const response = await axios.get('http://localhost:8000/carreras/', {
+        const response = await axios.get('http://localhost:8000/terminos/', {
             headers: {
                 'Authorization': datos.token,
                 'nombre-usuario': datos.nombre_usuario,
@@ -16,13 +16,13 @@ export const getCarreras = async (datos) => {
         if (error.response && error.response.status === 401) {
             return { success: false, message: error.response.data.message };
         }
-        return { success: false, message: 'Error al listar carreras' };
+        return { success: false, message: 'Error al cargar los Términos y Condiciones' };
     }
 };
 
-export const createCarreras = async (datos) => {
+export const createTerminos = async (datos) => {
     try {
-        const response = await axios.post('http://localhost:8000/carreras/nuevo/', datos, {
+        const response = await axios.post('http://localhost:8000/terminos/nuevo/', datos, {
             headers: {
                 'Authorization': datos.token,
                 'nombre-usuario': datos.nombre_usuario,
@@ -34,13 +34,13 @@ export const createCarreras = async (datos) => {
         if (error.response && error.response.status === 401) {
             return { success: false, message: error.response.data.message };
         }
-        return { success: false, message: 'Error al crear la carrera' };
+        return { success: false, message: 'Error al crear los Terminos y Condiciones' };
     }
 };
 
-export const updateCarreras = async (datos) => {
+export const updateTerminos = async (datos) => {
     try {
-        const response = await axios.put(`http://localhost:8000/carreras/${datos.id}/editar/`, datos, {
+        const response = await axios.put(`http://localhost:8000/terminos/${datos.id}/editar/`, datos, {
             headers: {
                 'Authorization': datos.token,
                 'nombre-usuario': datos.nombre_usuario,
@@ -52,13 +52,13 @@ export const updateCarreras = async (datos) => {
         if (error.response && error.response.status === 401) {
             return { success: false, message: error.response.data.message };
         }
-        return { success: false, message: 'Error al actualizar carrera' };
+        return { success: false, message: 'Error al actualizar los Terminos y Condiciones' };
     }
 };
 
-export const deleteCarrera = async (datos) => {
+export const deleteTerminos = async (datos) => {
     try {
-        const response = await axios.delete(`http://localhost:8000/carreras/${datos.id}/eliminar/`, {
+        const response = await axios.delete(`http://localhost:8000/terminos/${datos.id}/eliminar/`, {
             headers: {
                 'Authorization': datos.token,
                 'nombre-usuario': datos.nombre_usuario,
@@ -70,6 +70,6 @@ export const deleteCarrera = async (datos) => {
         if (error.response && error.response.status === 401) {
             return { success: false, message: error.response.data.message };
         }
-        return { success: false, message: 'Error al eliminar carrera' };
+        return { success: false, message: 'Error al eliminar los Terminos y Condiciones' };
     }
 };

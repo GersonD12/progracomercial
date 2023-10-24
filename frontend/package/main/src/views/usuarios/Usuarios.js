@@ -55,7 +55,7 @@ const Usuarios = () => {
               <Table>
                 <thead>
                   <tr>
-                    <th style={{ maxWidth: '200px' }}>Nickname</th>
+                    <th style={{ maxWidth: '200px' }}>Nombre</th>
                     <th style={{ maxWidth: '200px' }}>Correo</th>
                     <th style={{ maxWidth: '200px' }}>Carrera</th>
                     <th style={{ maxWidth: '200px' }}>Género</th>

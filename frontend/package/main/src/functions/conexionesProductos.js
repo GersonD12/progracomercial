@@ -7,8 +7,8 @@ export const getProductos = async (datos) => {
         const response = await axios.get('http://localhost:8000/productos/', {
             headers: {
                 'Authorization': datos.token,
-                'nombre_usuario': datos.nombre_usuario,
-                'id_user': datos.id_User,
+                'nombre-usuario': datos.nombre_usuario,
+                'id-user': datos.id_User,
             }
         });
         return { success: true, data: response.data };

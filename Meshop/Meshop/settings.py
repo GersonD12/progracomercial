@@ -61,10 +61,10 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_HEADERS = [
-    'id_user',
+    'id-user',
     'authorization',
     'content-type',
-    'nombre_usuario'
+    'nombre-usuario'
 ]
 
 ROOT_URLCONF = 'Meshop.urls'

@@ -30,15 +30,14 @@ def verificarToken(view_func):
         #try:
         #token = base64.b64decode(token_base64).decode('utf-8')
         token = token_base64
-        nombre_usuario = 'Miguel'
-        id_User = 1
+        nombre_usuario = str(request.headers.get('nombre-usuario', ''))
+        id_User = str(request.headers.get('id-user', ''))
         secret_key = 'Me$hopT0keN'
 
         try:
             # Verificar el token con la clave secreta
             decoded_token = jwt.decode(token, secret_key, algorithms=['HS256'])
-
-            if decoded_token['nombre_usuario'] != nombre_usuario or decoded_token['id'] != id_User:
+            if str(decoded_token['nombre_usuario']) != nombre_usuario or str(decoded_token['id']) != id_User:
                 return JsonResponse({'message': 'El token no pertenece al usuario.'}, status=401)
 
             # Token válido, continuar con la solicitud y ejecutar la vista
@@ -97,6 +96,9 @@ def CreateCarrera(request):
         SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+        data.pop('token', None)
+        data.pop('nombre_usuario', None)
+        data.pop('id_User', None)
         # Supongamos que los datos a insertar están en 'data'
         response = supabase.from_('usuarios_carrera').upsert([data]).execute()
 
@@ -129,6 +131,9 @@ def UpdateCarrera(request, pk):
             errors = {'message': 'Error en los datos JSON'}
             return JsonResponse(errors, status=400)
 
+        data.pop('token', None)
+        data.pop('nombre_usuario', None)
+        data.pop('id_User', None)
         # Actualiza la carrera en Supabase
         response = supabase.from_('usuarios_carrera').update(data).eq('id', carrera_id).execute()
 
@@ -216,6 +221,9 @@ def CreateTerminos(request):
         SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+        data.pop('token', None)
+        data.pop('nombre_usuario', None)
+        data.pop('id_User', None)
         # Supongamos que los datos a insertar están en 'data'
         response = supabase.from_('usuarios_terminos_y_condiciones').upsert([data]).execute()
 
@@ -248,6 +256,9 @@ def UpdateTerminos(request, pk):
             errors = {'message': 'Error en los datos JSON'}
             return JsonResponse(errors, status=400)
 
+        data.pop('token', None)
+        data.pop('nombre_usuario', None)
+        data.pop('id_User', None)
         # Actualiza la carrera en Supabase
         response = supabase.from_('usuarios_terminos_y_condiciones').update(data).eq('id', terminos_id).execute()
 
@@ -335,6 +346,9 @@ def CreateProveedor(request):
         SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+        data.pop('token', None)
+        data.pop('nombre_usuario', None)
+        data.pop('id_User', None)
         # Supongamos que los datos a insertar están en 'data'
         response = supabase.from_('usuarios_proveedor').upsert([data]).execute()
 
@@ -367,6 +381,9 @@ def UpdateProveedor(request, pk):
             errors = {'message': 'Error en los datos JSON'}
             return JsonResponse(errors, status=400)
 
+        data.pop('token', None)
+        data.pop('nombre_usuario', None)
+        data.pop('id_User', None)
         # Actualiza la carrera en Supabase
         response = supabase.from_('usuarios_proveedor').update(data).eq('id', proveedor_id).execute()
 
@@ -573,7 +590,7 @@ def CreateUsuarioEstudiante(request):
         SUPABASE_URL = os.environ.get('SUPABASE_URL')
         SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-
+        
         # Supongamos que los datos a insertar están en 'data'
         response = supabase.from_('usuarios_usuarioestudiante').upsert([data]).execute()
 
@@ -605,7 +622,7 @@ def UpdateUsuarioEstudiante(request, pk):
         except json.JSONDecodeError as e:
             errors = {'message': 'Error en los datos JSON'}
             return JsonResponse(errors, status=400)
-
+        
         # Actualiza la carrera en Supabase
         response = supabase.from_('usuarios_usuarioestudiante').update(data).eq('id', usuario_estudiante_id).execute()
 
@@ -817,6 +834,9 @@ def CreateUsuarioAdmin(request):
         SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+        data.pop('token', None)
+        data.pop('nombreUser', None)
+        data.pop('id_User', None)
         # Supongamos que los datos a insertar están en 'data'
         response = supabase.from_('usuarios_usuarioadmin').upsert([data]).execute()
 
@@ -855,6 +875,9 @@ def UpdateUsuarioAdmin(request, pk):
             hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
             data['password'] = hashed_password.decode('utf-8')
 
+        data.pop('token', None)
+        data.pop('nombreUser', None)
+        data.pop('id_User', None)
         # Actualiza la carrera en Supabase
         response = supabase.from_('usuarios_usuarioadmin').update(data).eq('id', usuario_admin_id).execute()
 

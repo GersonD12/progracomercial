@@ -1,10 +1,10 @@
 /* eslint-disable import/prefer-default-export */
 import axios from 'axios';
 
-// Conexiones para Carreras
-export const getCarreras = async (datos) => {
+// Conexiones para Proveedores
+export const getProveedores = async (datos) => {
     try {
-        const response = await axios.get('http://localhost:8000/carreras/', {
+        const response = await axios.get('http://localhost:8000/proveedores/', {
             headers: {
                 'Authorization': datos.token,
                 'nombre-usuario': datos.nombre_usuario,
@@ -16,13 +16,13 @@ export const getCarreras = async (datos) => {
         if (error.response && error.response.status === 401) {
             return { success: false, message: error.response.data.message };
         }
-        return { success: false, message: 'Error al listar carreras' };
+        return { success: false, message: 'Error al cargar Proveedores' };
     }
 };
 
-export const createCarreras = async (datos) => {
+export const createProveedor= async (datos) => {
     try {
-        const response = await axios.post('http://localhost:8000/carreras/nuevo/', datos, {
+        const response = await axios.post('http://localhost:8000/proveedores/nuevo/', datos, {
             headers: {
                 'Authorization': datos.token,
                 'nombre-usuario': datos.nombre_usuario,
@@ -34,13 +34,13 @@ export const createCarreras = async (datos) => {
         if (error.response && error.response.status === 401) {
             return { success: false, message: error.response.data.message };
         }
-        return { success: false, message: 'Error al crear la carrera' };
+        return { success: false, message: 'Error al crear Proveedor' };
     }
 };
 
-export const updateCarreras = async (datos) => {
+export const updateProveedor = async (datos) => {
     try {
-        const response = await axios.put(`http://localhost:8000/carreras/${datos.id}/editar/`, datos, {
+        const response = await axios.put(`http://localhost:8000/proveedores/${datos.id}/editar/`, datos, {
             headers: {
                 'Authorization': datos.token,
                 'nombre-usuario': datos.nombre_usuario,
@@ -52,13 +52,13 @@ export const updateCarreras = async (datos) => {
         if (error.response && error.response.status === 401) {
             return { success: false, message: error.response.data.message };
         }
-        return { success: false, message: 'Error al actualizar carrera' };
+        return { success: false, message: 'Error al actualizar Proveedor' };
     }
 };
 
-export const deleteCarrera = async (datos) => {
+export const deleteProveedor = async (datos) => {
     try {
-        const response = await axios.delete(`http://localhost:8000/carreras/${datos.id}/eliminar/`, {
+        const response = await axios.delete(`http://localhost:8000/proveedores/${datos.id}/eliminar/`, {
             headers: {
                 'Authorization': datos.token,
                 'nombre-usuario': datos.nombre_usuario,
@@ -70,6 +70,6 @@ export const deleteCarrera = async (datos) => {
         if (error.response && error.response.status === 401) {
             return { success: false, message: error.response.data.message };
         }
-        return { success: false, message: 'Error al eliminar carrera' };
+        return { success: false, message: 'Error al eliminar Proveedor' };
     }
 };
