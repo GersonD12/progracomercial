@@ -64,7 +64,7 @@ const SidebarData = [
     collapisble: false,
   },
   {
-    title: 'Usuarios',
+    title: 'Estudiantes',
     href: '/usuarios/Usuarios',
     icon: <Icon.FileText />,
     id: 2.3,

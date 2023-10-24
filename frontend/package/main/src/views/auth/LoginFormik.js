@@ -1,4 +1,5 @@
 import React from 'react';
+import Cookies from 'js-cookie';
 import { Button, Label, FormGroup, Container, Row, Col, Card, CardBody, Input } from 'reactstrap';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -6,20 +7,22 @@ import { Link, useNavigate } from 'react-router-dom';
 import miImagen from '../../assets/images/logos/Meshop3.png';
 import { ReactComponent as LeftBg } from '../../assets/images/bg/login-bgleft.svg';
 import { ReactComponent as RightBg } from '../../assets/images/bg/login-bg-right.svg';
+//
+import { Login } from '../../functions/conexionesLogin';
 
 const LoginFormik = () => {
   const navigate = useNavigate();
 
   const initialValues = {
-    email: '',
+    nombre_usuario: '',
     password: '',
   };
 
   const validationSchema = Yup.object().shape({
-    email: Yup.string().email('Email is invalid').required('Email is required'),
+    nombre_usuario: Yup.string('Nombre de usuario es invalido').required('Nombre de usuario es requerido'),
     password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
+      .min(6, 'Password debe tener al menos 6 caracteres')
+      .required('Password es requerido'),
   });
 
   return (
@@ -34,32 +37,44 @@ const LoginFormik = () => {
                 <div className="text-center mb-4">
                   <img src={miImagen} alt="" width="100" height="100" />
                 </div>
-
-                <h4 className="mb-0 fw-bold">Login</h4>
-
                 <Formik
                   initialValues={initialValues}
                   validationSchema={validationSchema}
-                  onSubmit={(fields) => {
-                    // eslint-disable-next-line no-alert
-                    alert(`SUCCESS!! :-)\n\n${JSON.stringify(fields, null, 4)}`);
-                    navigate('/');
+                  onSubmit={async (fields) => {
+                    try {
+                      const response = await Login(fields);                                        
+                      if (response && response.success) {
+                        // Almacenar el token, nombre de usuario y ID en Cookies
+                        Cookies.set('authToken', response.data.token, { expires: 2/24 })
+                        Cookies.set('username', fields.nombre_usuario); // Almacena el nombre de usuario
+                        Cookies.set('userId', response.data.id); // Almacena el ID del usuario
+                        console.log(response)
+                        alert('Inicio de sesión exitoso'); // Mensaje de éxito
+                        navigate('/');
+                      } else {
+                        alert(response.message); // Mensaje de error
+                        console.error(response.message);
+                      }
+                    } catch (error) {
+                      alert('Error al iniciar sesión');
+                      console.error(error);
+                    }
                   }}
                   render={({ errors, touched }) => (
                     <Form>
                       <FormGroup>
-                        <Label htmlFor="email">Usuario:</Label>
+                        <Label htmlFor="nombre_usuario">Usuario:</Label>
                         <Field
-                          name="email"
+                          name="nombre_usuario"
                           type="text"
                           className={`form-control${
-                            errors.email && touched.email ? ' is-invalid' : ''
+                            errors.nombre_usuario && touched.nombre_usuario ? ' is-invalid' : ''
                           }`}
                         />
-                        <ErrorMessage name="email" component="div" className="invalid-feedback" />
+                        <ErrorMessage name="nombre_usuario" component="div" className="invalid-feedback" />
                       </FormGroup>
                       <FormGroup>
-                        <Label htmlFor="password">Contrasela:</Label>
+                        <Label htmlFor="password">Contraseña:</Label>
                         <Field
                           name="password"
                           type="password"
@@ -83,7 +98,7 @@ const LoginFormik = () => {
                         </Link>
                       </FormGroup>
                       <FormGroup>
-                        <Button type="sucess" color="info" className="me-2">
+                        <Button type="submit" color="info" className="me-2">
                           Login
                         </Button>
                       </FormGroup>

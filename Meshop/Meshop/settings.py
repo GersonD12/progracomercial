@@ -40,8 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'usuarios',
-    'clear_cache',
-    'bootstrap4',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +51,20 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Reemplaza con la URL de tu aplicación React
+    "http://localhost:8000"
+]
+
+CORS_ALLOW_HEADERS = [
+    'id_user',
+    'authorization',
+    'content-type',
+    'nombre_usuario'
 ]
 
 ROOT_URLCONF = 'Meshop.urls'

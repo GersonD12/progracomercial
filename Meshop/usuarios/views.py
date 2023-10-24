@@ -27,27 +27,28 @@ def verificarToken(view_func):
         # Obtener el token de la cabecera de autorización
         token_base64  = request.headers['Authorization']
 
+        #try:
+        #token = base64.b64decode(token_base64).decode('utf-8')
+        token = token_base64
+        nombre_usuario = 'Miguel'
+        id_User = 1
+        secret_key = 'Me$hopT0keN'
+
         try:
-            token = base64.b64decode(token_base64).decode('utf-8')
-            nombre_usuario = 'Miguel'
-            id_User = 1
-            secret_key = 'Me$hopT0keN'
+            # Verificar el token con la clave secreta
+            decoded_token = jwt.decode(token, secret_key, algorithms=['HS256'])
 
-            try:
-                # Verificar el token con la clave secreta
-                decoded_token = jwt.decode(token, secret_key, algorithms=['HS256'])
+            if decoded_token['nombre_usuario'] != nombre_usuario or decoded_token['id'] != id_User:
+                return JsonResponse({'message': 'El token no pertenece al usuario.'}, status=401)
 
-                if decoded_token['nombre_usuario'] != nombre_usuario or decoded_token['id'] != id_User:
-                    return JsonResponse({'message': 'El token no pertenece al usuario.'}, status=401)
-
-                # Token válido, continuar con la solicitud y ejecutar la vista
-                return view_func(request, *args, **kwargs)
-            except jwt.ExpiredSignatureError:
-                return JsonResponse({'message': 'Token expirado.'}, status=401)
-            except jwt.InvalidTokenError:
-                return JsonResponse({'message': 'Token no válido.'}, status=401)
-        except BinasciiError:
-            return JsonResponse({'message': 'Token no válido: Error de relleno.'}, status=401)
+            # Token válido, continuar con la solicitud y ejecutar la vista
+            return view_func(request, *args, **kwargs)
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'message': 'Token expirado.'}, status=401)
+        except jwt.InvalidTokenError:
+            return JsonResponse({'message': 'Token no válido.'}, status=401)
+        #except BinasciiError:
+            #return JsonResponse({'message': 'Token no válido: Error de relleno.'}, status=401)
     return wrapper
 
 #-------------------------------------------------------------------------
@@ -172,6 +173,7 @@ def DeleteCarrera(request, pk):
 #-------------------------------------------------------------------------
 #TERMINOS Y CONDICIONES
 # Listar terminos y condiciones
+@verificarToken
 def ListTerminos(request):
     if request.method == 'GET':
         # Configura la conexión a Supabase
@@ -290,6 +292,7 @@ def DeleteTerminos(request, pk):
 #--------------------------------------------------------------------------   
 #PROVEEDORES
 # Listar proveedores
+@verificarToken
 def ListProveedores(request):
     if request.method == 'GET':
         # Configura la conexión a Supabase
@@ -408,6 +411,7 @@ def DeleteProveedor(request, pk):
 #--------------------------------------------------------------------------
 #PUBLICIDAD
 # Listar publicidad
+@verificarToken
 def ListPublicidad(request):
     if request.method == 'GET':
         # Configura la conexión a Supabase
@@ -526,6 +530,8 @@ def DeletePublicidad(request, pk):
 #--------------------------------------------------------------------------
 #USUARIOS (ESTUDIANTES)
 # Listar usuarios estudiantes
+@csrf_exempt
+@verificarToken
 def ListUsuariosEstudiantes(request):
     if request.method == 'GET':
         # Configura la conexión a Supabase
@@ -644,6 +650,7 @@ def DeleteUsuarioEstudiante(request, pk):
 #--------------------------------------------------------------------------
 #PRODUCTO
 # Listar productos
+@verificarToken
 def ListProductos(request):
     if request.method == 'GET':
         # Configura la conexión a Supabase
@@ -931,8 +938,8 @@ def LoginUsuarioAdmin(request):
                 # Define una clave secreta para firmar el token (puedes generar una clave segura)
                 secret_key = 'Me$hopT0keN'
                 token = jwt.encode(datosToken, secret_key, algorithm='HS256')
-                token_base64 = base64.b64encode(token).decode('utf-8')
-                return JsonResponse({'message': 'Inicio de sesión exitoso', 'token': token_base64})
+                #token_base64 = base64.b64encode(token).decode('utf-8')
+                return JsonResponse({'message': 'Inicio de sesión exitoso', 'token': token, 'id': user['id']})
         
         errors = {'message': 'Credenciales incorrectas'}
         return JsonResponse(errors, status=401)
