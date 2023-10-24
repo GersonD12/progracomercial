@@ -21,9 +21,13 @@ const About = Loadable(lazy(() => import('../views/About')));
 
 
 /***** PRUEBAS DOUGLAS ****/
-const Pruebas2 = Loadable(lazy(() => import('../views/apps/pruebas/Prueba')));
 
 const Producto = Loadable(lazy(() => import('../views/productos/Productos')));
+const Carrera = Loadable(lazy(() => import('../views/carrera/Carrera')));
+const Termino = Loadable(lazy(() => import('../views/terminos/Termino')));
+const Publicidad = Loadable(lazy(() => import('../views/publicidad/Publicidad')));
+const Proveedor = Loadable(lazy(() => import('../views/proveedor/Proveedor')));
+const Perfil = Loadable(lazy(() => import('../views/perfil/Perfil')));
 
 
 
@@ -58,12 +62,6 @@ const ThemeRoutes = [
 
       /***** PRUEBAS DOUGLAS ****/
       {
-        path: '/apps/pruebas', // Puedes personalizar la URL según tus necesidades
-        name: 'Pruebas2', // Puedes personalizar el nombre de la ruta
-        exact: true, // Opcional: si deseas que coincida exactamente con la URL
-        element: <Pruebas2 /> // Renderiza el componente Prueba.js
-      },
-      {
         path: '/productos/Productos', // Puedes personalizar la URL según tus necesidades
         name: 'Prodcutos', // Puedes personalizar el nombre de la ruta
         exact: true, // Opcional: si deseas que coincida exactamente con la URL
@@ -75,6 +73,36 @@ const ThemeRoutes = [
         name: 'Usuarios', // Puedes personalizar el nombre de la ruta
         exact: true, // Opcional: si deseas que coincida exactamente con la URL
         element: <Usuarios /> // Renderiza el componente Prueba.js
+      },
+      {
+        path: '/carrera/Carrera', // Puedes personalizar la URL según tus necesidades
+        name: 'Carrera', // Puedes personalizar el nombre de la ruta
+        exact: true, // Opcional: si deseas que coincida exactamente con la URL
+        element: <Carrera /> // Renderiza el componente Prueba.js
+      },
+      {
+        path: '/termino/Termino', // Puedes personalizar la URL según tus necesidades
+        name: 'Termino', // Puedes personalizar el nombre de la ruta
+        exact: true, // Opcional: si deseas que coincida exactamente con la URL
+        element: <Termino /> // Renderiza el componente Prueba.js
+      },
+      {
+        path: '/publicidad/Publicidad', // Puedes personalizar la URL según tus necesidades
+        name: 'Publicidad', // Puedes personalizar el nombre de la ruta
+        exact: true, // Opcional: si deseas que coincida exactamente con la URL
+        element: <Publicidad /> // Renderiza el componente Prueba.js
+      },
+      {
+        path: '/proveedor/Proveedor', // Puedes personalizar la URL según tus necesidades
+        name: 'Proveedor', // Puedes personalizar el nombre de la ruta
+        exact: true, // Opcional: si deseas que coincida exactamente con la URL
+        element: <Proveedor /> // Renderiza el componente Prueba.js
+      },
+      {
+        path: '/perfil/Perfil', // Puedes personalizar la URL según tus necesidades
+        name: 'Perfil', // Puedes personalizar el nombre de la ruta
+        exact: true, // Opcional: si deseas que coincida exactamente con la URL
+        element: <Perfil /> // Renderiza el componente Prueba.js
       },
      
   
