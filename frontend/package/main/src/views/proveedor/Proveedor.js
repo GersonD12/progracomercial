@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Col, FormGroup, Label, Button, InputGroupText, InputGroup, Table } from 'reactstrap';
+import { useNavigate  } from 'react-router-dom';
 import { Field, ErrorMessage, Formik, Form } from 'formik'; // Importa Formik y Form
 import * as Yup from 'yup';
 import Cookies from 'js-cookie';
@@ -27,11 +28,17 @@ const Proveedor = () => {
   // Estado para almacenar la lista de terminos
   const [proveedores, setProveedores] = useState([]);
   const [proveedoresEdit, setProveedoresEdit] = useState(null);
+  const authToken = Cookies.get('authToken');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!authToken) {
+        navigate('/auth/loginformik');
+        return;
+      }
+      
       try {
-        const authToken = Cookies.get('authToken');
         const nombreUsuario = Cookies.get('username');
         const idUser = parseInt(Cookies.get('userId'), 10);
         const dataFields = {
@@ -57,7 +64,6 @@ const Proveedor = () => {
   const handleEliminarClick = async (id) => {
     if (window.confirm('¿Seguro que desea eliminar este Proveedor?')) {
       try {
-        const authToken = Cookies.get('authToken');
         const nombreUsuario = Cookies.get('username');
         const idUser = Cookies.get('userId');
         const dataFields = {
@@ -227,7 +233,7 @@ const Proveedor = () => {
 
 
                 <div className="border-top pt-3 mt-3 d-flex align-items-center gap-2">
-                  <Button type="submit" className="btn btn-success mr-2">
+                  <Button type="submit" className="btn btn-info mr-2">
                     {proveedoresEdit !== null ? 'Guardar Cambios' : 'Ingresar'}
                   </Button>
                   <Button type="reset" className="btn btn-dark" onClick={() => { setProveedoresEdit(null); resetForm(); }}>

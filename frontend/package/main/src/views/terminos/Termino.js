@@ -9,11 +9,12 @@ import {
   Table,
 } from 'reactstrap';
 import { Field, ErrorMessage, Formik, Form } from 'formik'; // Importa Formik y Form
+import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import Cookies from 'js-cookie';
 import ComponentCard from '../../components/ComponentCard';
 //
-import { getTerminos, createTerminos, updateTerminos, deleteTerminos } from '../../functions/conexionesTerminos';
+import { getTerminos, createTerminos, updateTerminos, updateTerminosEstado, deleteTerminos } from '../../functions/conexionesTerminos';
 
 const Termino = () => {
   // Inicialización de variables
@@ -23,9 +24,11 @@ const Termino = () => {
   };
 
   // Validaciones
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
   const validationSchema = Yup.object().shape({
     fecha_creacion: Yup.date()
-      .min(new Date(), 'La fecha no puede ser anterior a la fecha actual')
+      .min(yesterday, 'La fecha no puede ser anterior a la fecha actual')
       .required('Fecha es requerida'),
     texto: Yup.string().required('Texto es requerido'),
   });
@@ -33,11 +36,17 @@ const Termino = () => {
   // Estado para almacenar la lista de terminos
   const [terminos, setTerminos] = useState([]);
   const [terminosEdit, setTerminosEdit] = useState(null);
+  const authToken = Cookies.get('authToken');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!authToken) {
+        navigate('/auth/loginformik');
+        return;
+      }
+
       try {
-        const authToken = Cookies.get('authToken');
         const nombreUsuario = Cookies.get('username');
         const idUser = parseInt(Cookies.get('userId'), 10);
         const dataFields = {
@@ -72,7 +81,6 @@ const Termino = () => {
   const handleEliminarClick = async (id) => {
     if (window.confirm('¿Seguro que desea eliminar estos Terminos y Condiciones?')) {
       try {
-        const authToken = Cookies.get('authToken');
         const nombreUsuario = Cookies.get('username');
         const idUser = Cookies.get('userId');
         const dataFields = {
@@ -104,15 +112,25 @@ const Termino = () => {
     if (elementoEncontrado) {
       // Convierte la fecha al formato adecuado (AAAA-MM-DD)
       const fechaFormateada = new Date(elementoEncontrado.fecha_creacion)
-      .toISOString()
-      .split('T')[0];
+        .toISOString()
+        .split('T')[0];
       //
       setFieldValue('fecha_creacion', fechaFormateada);
       setFieldValue('texto', elementoEncontrado.texto);
     }
     setTerminosEdit(index);
   };
-  
+
+  // Limitar lo que se muestra en pantalla (Texto de los Términos y Condiciones)
+  const maxWords = 40;
+  const [expanded, setExpanded] = useState([]);
+
+  const toggleExpand = (index) => {
+    const newExpanded = [...expanded];
+    newExpanded[index] = !newExpanded[index];
+    setExpanded(newExpanded);
+  };
+
   const tableRef = useRef();
   return (
     <div>
@@ -227,10 +245,10 @@ const Termino = () => {
                 </FormGroup>
 
                 <div className="border-top pt-3 mt-3 d-flex align-items-center gap-2">
-                  <Button type="submit" className="btn btn-success mr-2">
+                  <Button type="submit" className="btn btn-info mr-2">
                     {terminosEdit !== null ? 'Guardar Cambios' : 'Ingresar'}
                   </Button>
-                  <Button type="reset" className="btn btn-dark" onClick={() => {setTerminosEdit(null); resetForm();}}>
+                  <Button type="reset" className="btn btn-dark" onClick={() => { setTerminosEdit(null); resetForm(); }}>
                     Cancelar
                   </Button>
                 </div>
@@ -243,27 +261,74 @@ const Termino = () => {
                           <thead>
                             <tr>
                               <th style={{ maxWidth: '80px' }}>Fecha</th>
-                              <th style={{ maxWidth: '500px' }}>Texto</th>
+                              <th style={{ maxWidth: '450px' }}>Texto</th>
+                              <th style={{ maxWidth: '50px' }}>Estado</th>
                               <th style={{ maxWidth: '100px' }}>Acciones</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {terminos.map((termino) => (
+                            {terminos.map((termino, index) => (
                               <tr key={termino.id}>
                                 <td style={{ maxWidth: '80px' }}>{formatearFecha(termino.fecha_creacion)}</td>
-                                <td style={{ maxWidth: '500px', textAlign: 'justify' }}>{termino.texto}</td>
+                                <td style={{
+                                  maxWidth: '450px',
+                                  textAlign: 'justify', // Añade esta línea
+                                  textJustify: 'inter-word' // Esto ayuda a justificar palabras individualmente
+                                }}>
+                                  {expanded[index]
+                                    ? termino.texto
+                                    : termino.texto
+                                      .split(' ')
+                                      .slice(0, maxWords)
+                                      .join(' ')}
+                                  {termino.texto.split(' ').length > maxWords && (
+                                    <span
+                                      style={{ cursor: 'pointer', color: 'purple' }}
+                                      onClick={() => toggleExpand(index)}
+                                    >
+                                      {expanded[index] ? <><br />Mostrar menos</> : ' ...más'}
+                                    </span>
+                                  )}
+                                </td>
+                                <td style={{ maxWidth: '50px', textAlign: 'center' }}>{termino.estado}</td>
                                 <td style={{ maxWidth: '100px' }}>
+                                  <div>
+                                    <Button
+                                      className="btn btn-info btn-sm mb-2"
+                                      onClick={() => handleEditarClick(termino.id, setFieldValue)}
+                                    >
+                                      Editar
+                                    </Button>{' '}
+                                    <Button
+                                      className="btn btn-danger btn-sm mb-2"
+                                      onClick={() => {
+                                        handleEliminarClick(termino.id);
+                                        window.location.reload();
+                                      }}
+                                    >
+                                      Eliminar
+                                    </Button>
+                                  </div>
                                   <Button
-                                    className="btn btn-info btn-sm mr-2"
-                                    onClick={() => handleEditarClick(termino.id, setFieldValue)}
+                                    className="btn btn-black btn-sm"
+                                    onClick={() => {
+                                      const dataFields = {
+                                        id: termino.id,
+                                        token: Cookies.get('authToken'),
+                                        nombre_usuario: Cookies.get('username'),
+                                        id_User: Cookies.get('userId')
+                                      };
+                                      updateTerminosEstado(dataFields)
+                                        .then(() => {
+                                          window.location.reload();
+                                        })
+                                        .catch((error) => {
+                                          console.error("Error al actualizar terminos: ", error);
+                                          // Maneja el error de manera apropiada si es necesario.
+                                        });
+                                    }}
                                   >
-                                    Editar
-                                  </Button>{" "}
-                                  <Button
-                                    className="btn btn-danger btn-sm"
-                                    onClick={() => handleEliminarClick(termino.id)}
-                                  >
-                                    Eliminar
+                                    Seleccionar
                                   </Button>
                                 </td>
                               </tr>

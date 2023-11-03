@@ -1,20 +1,22 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import SimpleBar from 'simplebar-react';
+import { useSelector, /* useDispatch */ } from 'react-redux';
+import Cookies from 'js-cookie';
+/* import { Link } from 'react-router-dom'; */
+/* import SimpleBar from 'simplebar-react'; */
+import { useNavigate  } from 'react-router-dom';
 import {
   Navbar,
-  Nav,
+  /* Nav,
   NavItem,
   NavbarBrand,
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
+  Input, */
   Button,
-  Input,
 } from 'reactstrap';
-import * as Icon from 'react-feather';
+/* import * as Icon from 'react-feather';
 //import { ReactComponent as LogoWhite } from '../../assets/images/logos/white-logo-icon.svg';
 import { ReactComponent as Logo } from '../../assets/images/logos/Meshop2.svg';
 import MessageDD from './MessageDD';
@@ -23,12 +25,22 @@ import MegaDD from './MegaDD';
 import user1 from '../../assets/images/users/user4.jpg';
 
 import { ToggleMiniSidebar, ToggleMobileSidebar } from '../../store/customizer/CustomizerSlice';
-import ProfileDD from './ProfileDD';
+import ProfileDD from './ProfileDD';  */
 
 const Header = () => {
   const isDarkMode = useSelector((state) => state.customizer.isDark);
   const topbarColor = useSelector((state) => state.customizer.topbarBg);
-  const dispatch = useDispatch();
+  /* const dispatch = useDispatch(); */
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Eliminar token
+    Cookies.remove('authToken');
+    Cookies.remove('username');
+    Cookies.remove('userId');
+    // Ir a login
+    navigate('/auth/loginformik');
+  };
 
   return (
     <Navbar
@@ -38,10 +50,13 @@ const Header = () => {
       expand="lg"
       className="topbar bg-gradient"
     >
-      {/******************************/}
-      {/**********Toggle Buttons**********/}
-      {/******************************/}
-      <div className="d-flex align-items-center">
+      <br></br>
+      <div >
+        <Button color="danger" size="sm" className="ml-auto" onClick={handleLogout}>
+          Logout
+        </Button>
+      </div>
+      {/* <div className="d-flex align-items-center">
         <Button
           color={topbarColor}
           className="d-none d-lg-block mx-1  hov-dd border-0"
@@ -49,7 +64,7 @@ const Header = () => {
         >
           <Icon.ArrowLeftCircle size={18} />
         </Button>
-        <NavbarBrand href="/" className="d-sm-block d-lg-none">
+        <NavbarBrand className="d-sm-block d-lg-none">
           <Logo />
         </NavbarBrand>
         <Button
@@ -60,15 +75,7 @@ const Header = () => {
           <i className="bi bi-list" />
         </Button>
       </div>
-
-      {/******************************/}
-      {/**********Left Nav Bar**********/}
-      {/******************************/}
-
       <Nav className="me-auto d-flex flex-row align-items-center" navbar>
-        {/******************************/}
-        {/**********Notification DD**********/}
-        {/******************************/}
         <UncontrolledDropdown className="mx-1 hov-dd">
           <DropdownToggle className="bg-transparent border-0" color={topbarColor}>
             <Icon.MessageSquare size={18} />
@@ -89,9 +96,7 @@ const Header = () => {
             </div>
           </DropdownMenu>
         </UncontrolledDropdown>
-        {/******************************/}
-        {/**********Message DD**********/}
-        {/******************************/}
+
         <UncontrolledDropdown className="mx-1 hov-dd">
           <DropdownToggle className="bg-transparent border-0" color={topbarColor}>
             <Icon.Mail size={18} />
@@ -112,9 +117,7 @@ const Header = () => {
             </div>
           </DropdownMenu>
         </UncontrolledDropdown>
-        {/******************************/}
-        {/**********Mega DD**********/}
-        {/******************************/}
+
         <UncontrolledDropdown className="mega-dropdown mx-1 hov-dd">
           <DropdownToggle className="bg-transparent border-0" color={topbarColor}>
             <Icon.Grid size={18} />
@@ -129,30 +132,30 @@ const Header = () => {
           </Link>
         </NavItem>
       </Nav>
-
-      <div className="d-flex">
-        {/******************************/}
-        {/**********Profile DD**********/}
-        {/******************************/}
+      <div className="d-flex" >
         <Input
           type="search"
           placeholder="Search"
           className="rounded-pill d-md-block d-none my-1 border-0"
         ></Input>
         <UncontrolledDropdown className=" hov-dd">
-          <DropdownToggle color="transparent">
+        <div className="ml-auto">
+          <Button color="danger" size="sm">
+            Logout
+          </Button>
+        </div>
+         <DropdownToggle color="transparent">
             <img src={user1} alt="profile" className="rounded-circle" width="30" />
           </DropdownToggle>
           <DropdownMenu className="ddWidth profile-dd">
-            <ProfileDD />
             <div className="p-2 px-3">
               <Button color="danger" size="sm">
                 Logout
               </Button>
             </div>
           </DropdownMenu>
-        </UncontrolledDropdown>
-      </div>
+         </UncontrolledDropdown>
+      </div> */}
     </Navbar>
   );
 };

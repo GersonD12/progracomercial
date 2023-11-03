@@ -40,7 +40,7 @@
     "react-jvectormap": "0.0.16",
     "react-pro-sidebar": "^1.1.0-alpha.1",
     "react-redux": "^8.1.1",
-    "react-router-dom": "^6.14.0",
+    "react-router-dom": "^6.17.0",
     "react-scripts": "5.0.1",
     "react-select": "^5.7.3",
     "react-simple-tree-menu": "^1.1.18",

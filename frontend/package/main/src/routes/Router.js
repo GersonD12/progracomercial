@@ -1,5 +1,6 @@
-import { lazy } from 'react';
+import React, { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import Loadable from '../layouts/loader/Loadable';
 import Usuarios from '../views/usuarios/Usuarios';
 //import Prueba from '../views/apps/pruebas/Prueba'; // Importa el componente Prueba.js
@@ -46,13 +47,32 @@ const RecoverPassword = Loadable(lazy(() => import('../views/auth/RecoverPasswor
 
 /*****Routes******/
 
+function ModernWithAuthenticationCheck() {
+  // Utilizamos !! para convertir en True si existe el Token, o en False si no existe
+  const hasAuthToken = !!Cookies.get('authToken');
+
+  // Redirecciona a Login si no está logueado
+  if (!hasAuthToken) {
+    return <Navigate to="/auth/loginformik" />;
+  }
+
+  // Redirecciona a Dashboard si está logueado
+  return <Modern />;
+}
+
 const ThemeRoutes = [
   {
     path: '/',
     element: <FullLayout />,
     children: [
-      { path: '/', name: 'Home', element: <Navigate to="/dashboards/modern" /> },
-      { path: '/dashboards/modern', name: 'Modern', exact: true, element: <Modern /> },
+      { path: '/', name: 'Home', element: <Navigate to="/auth/loginformik" /> },
+      //{ path: '/dashboards/modern', name: 'Modern', exact: true, element: <Modern /> },
+      {
+        path: '/dashboards/modern',
+        name: 'Modern',
+        exact: true,
+        element: <ModernWithAuthenticationCheck />,
+      },
       { path: '/dashboards/awesome', name: 'awesome', exact: true, element: <Awesome /> },
       { path: '/dashboards/classy', name: 'Classy', exact: true, element: <Classy /> },
       { path: '/dashboards/analytical', name: 'analytical', exact: true, element: <Analytical /> },
@@ -104,9 +124,6 @@ const ThemeRoutes = [
         exact: true, // Opcional: si deseas que coincida exactamente con la URL
         element: <Perfil /> // Renderiza el componente Prueba.js
       },
-     
-  
-      
      
       { path: '/icons/bootstrap', name: 'bootstrap', exact: true, element: <Bootstrap /> },
       { path: '/icons/feather', name: 'feather', exact: true, element: <Feather /> },

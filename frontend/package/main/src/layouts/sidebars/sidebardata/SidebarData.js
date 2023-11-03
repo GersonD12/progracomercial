@@ -53,7 +53,7 @@ const SidebarData = [
     id: 2.7,
     collapisble: false,
   },
-  {
+  /* {
     title: 'Authentication',
     href: '/auth',
     icon: <Icon.Lock />,
@@ -91,7 +91,7 @@ const SidebarData = [
         icon: <Icon.Disc />,
       },
     ],
-  },
+  }, */
 ];
 
 export default SidebarData;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Col, Form, FormGroup, Label, Button, InputGroupText, InputGroup, Table } from 'reactstrap';
 import { Field, ErrorMessage, Formik } from 'formik'; // Importa Formik y Form
+import { useNavigate  } from 'react-router-dom';
 import * as Yup from 'yup';
 import Cookies from 'js-cookie';
 import ComponentCard from '../../components/ComponentCard';
@@ -21,11 +22,17 @@ const Carrera = () => {
   // Estado para almacenar la lista de carreras
   const [carreras, setCarreras] = useState([]);
   const [carrerasEdit, setCarrerasEdit] = useState(null);
+  const authToken = Cookies.get('authToken');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const authToken = Cookies.get('authToken');
+      if (!authToken) {
+        navigate('/auth/loginformik');
+        return;
+      }      
+      
+      try {        
         const nombreUsuario = Cookies.get('username');
         const idUser = parseInt(Cookies.get('userId'), 10);
         const dataFields = {
@@ -51,7 +58,6 @@ const Carrera = () => {
   const handleEliminarClick = async (id) => {
     if (window.confirm('¿Seguro que desea eliminar esta carrera?')) {
       try {
-        const authToken = Cookies.get('authToken');
         const nombreUsuario = Cookies.get('username');
         const idUser = Cookies.get('userId');
         const dataFields = {
@@ -183,7 +189,7 @@ const Carrera = () => {
                   </InputGroup>
                 </FormGroup>
                 <div className="border-top pt-3 mt-3 d-flex align-items-center gap-2">
-                  <Button type="submit" className="btn btn-success mr-2">
+                  <Button type="submit" className="btn btn-info mr-2">
                     {carrerasEdit !== null ? 'Guardar Cambios' : 'Ingresar'}
                   </Button>
                   <Button type="reset" className="btn btn-dark" onClick={() => {setCarrerasEdit(null); resetForm();}}>

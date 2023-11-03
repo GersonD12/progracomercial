@@ -1,23 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Col, Card, CardBody, CardTitle, Progress } from 'reactstrap';
+import { Col, Card, CardBody, CardTitle } from 'reactstrap';
 
-const ProgressCardsData = ({ title, icon, subtext, pColor, pPercent, income }) => {
+const ProgressCardsData = ({ title, icon, pColor, income }) => {
   return (
     <>
       <Col lg={3} md={6}>
         <Card>
           <CardBody>
-            <CardTitle tag="h4">{title}</CardTitle>
+            <CardTitle tag="h4" style={{ textAlign: 'left' }}>{title}</CardTitle>
             <div className="text-end">
-              <h2 className="fw-light mb-0">
+              <h2 className="fw-light mb-0" style={{ textAlign: 'left' }}>
                 <i className={`bi bi-${icon} text-${pColor}`}></i> ${income}
               </h2>
-              <span className="text-muted fw-light">{subtext}</span>
             </div>
-            <span className={`text-${pColor}`}>{pPercent}%</span>
-            <Progress color={pColor} value={pPercent} />
           </CardBody>
         </Card>
       </Col>
@@ -34,8 +31,6 @@ ProgressCardsData.propTypes = {
   title: PropTypes.string,
   income: PropTypes.string,
   icon: PropTypes.string,
-  subtext: PropTypes.string,
-  pPercent: PropTypes.string,
 };
 
 export default ProgressCardsData;

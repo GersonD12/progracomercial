@@ -188,6 +188,7 @@ def ListTerminos(request):
 
         # Realiza una consulta a Supabase para obtener los departamentos
         response = supabase.from_('usuarios_terminos_y_condiciones').select('*').execute()
+        #response = supabase.from_('usuarios_terminos_y_condiciones').select('*').order('-fecha_creacion').execute()
 
         # Extrae los departamentos de la respuesta
         data = response.data
@@ -269,6 +270,33 @@ def UpdateTerminos(request, pk):
         else:
             # Manejo de error y respuesta JSON en caso de error
             errors = {'message': 'Hubo un problema al actualizar los Terminos y Condiciones.'}
+            return JsonResponse(errors, status=400)
+    else:
+        return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@verificarToken
+def UpdateTerminosEstado(request, pk):
+    if request.method == 'PUT':
+        # Configura la conexión a Supabase
+        SUPABASE_URL = os.environ.get('SUPABASE_URL')
+        SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+        # Obtiene el ID del término de la URL
+        terminos_id = pk
+        
+        # Actualiza el estado del término en Supabase
+        response = supabase.from_('usuarios_terminos_y_condiciones').update({'estado': 0}).eq('estado', 1).execute()
+        response = supabase.from_('usuarios_terminos_y_condiciones').update({'estado': 1}).eq('id', terminos_id).execute()
+
+        # Verifica si la actualización fue exitosa y devuelve una respuesta JSON
+        if 'error' not in response:
+            response_data = {'message': f'Término con ID {terminos_id} actualizado a estado 1'}
+            return JsonResponse(response_data)
+        else:
+            # Manejo de error y respuesta JSON en caso de error
+            errors = {'message': 'Hubo un problema al actualizar el término.'}
             return JsonResponse(errors, status=400)
     else:
         return JsonResponse({'message': 'Método no permitido'}, status=405)
@@ -471,6 +499,9 @@ def CreatePublicidad(request):
         SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+        data.pop('token', None)
+        data.pop('nombre_usuario', None)
+        data.pop('id_User', None)
         # Supongamos que los datos a insertar están en 'data'
         response = supabase.from_('usuarios_publicidad').upsert([data]).execute()
 
@@ -503,6 +534,9 @@ def UpdatePublicidad(request, pk):
             errors = {'message': 'Error en los datos JSON'}
             return JsonResponse(errors, status=400)
 
+        data.pop('token', None)
+        data.pop('nombre_usuario', None)
+        data.pop('id_User', None)
         # Actualiza la carrera en Supabase
         response = supabase.from_('usuarios_publicidad').update(data).eq('id', publicidad_id).execute()
 
@@ -969,12 +1003,15 @@ def LoginUsuarioAdmin(request):
     else:
         return HttpResponse("Método no permitido", status=405)
 
+#--------------------------------------------------------------------------
+#BUSQUEDAS
+# Busqueda en productos por nombre de producto
 @csrf_exempt
 @verificarToken
 def searchProduct(request):
     if request.method == 'POST':
         # Recibe el texto de la búsqueda de HTML
-        request_data = request.body
+        request_data = request.body        
 
         try:
             # Intenta analizar los datos JSON
@@ -989,6 +1026,9 @@ def searchProduct(request):
         SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
         supabase_client  = supabase.Client(SUPABASE_URL, SUPABASE_KEY)
 
+        data.pop('token', None)
+        data.pop('nombreUser', None)
+        data.pop('id_User', None)
         # Obtiene el departamento a eliminar
         products, error = supabase_client.from_('usuarios_producto').select('*').execute()
 
@@ -1009,3 +1049,324 @@ def searchProduct(request):
         else :# Se retorna la vista con los resultados cargados
             return JsonResponse({'results': results})
     return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+# Busqueda en productos por carrera
+@csrf_exempt
+@verificarToken
+def searchCarreras(request):
+    if request.method == 'POST':
+        # Recibe el texto de la búsqueda de HTML
+        request_data = request.body        
+
+        try:
+            # Intenta analizar los datos JSON
+            data = json.loads(request_data)
+        except json.JSONDecodeError as e:
+            errors = {'message': 'Error en los datos JSON'}
+            return JsonResponse(errors, status=400)
+
+        # Obtiene los productos de la tabla 'productos' en Supabase
+        # Configura la conexión a Supabase
+        SUPABASE_URL = os.environ.get('SUPABASE_URL')
+        SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+        supabase_client  = supabase.Client(SUPABASE_URL, SUPABASE_KEY)
+
+        data.pop('token', None)
+        data.pop('nombreUser', None)
+        data.pop('id_User', None)
+        
+        # Obtiene todas las carreras desde la tabla 'usuarios_carrera'
+        carreras, error = supabase_client.from_('usuarios_carrera').select('*').execute()
+
+        # Realiza la búsqueda flexible y almacena las carreras con un 50% de similitud
+        results = []
+        search_text = data.get('nombre_carrera', '')
+        for carrera_data in carreras[1]:
+            carrera_name = carrera_data.get('nombre_carrera', '')
+            # Función fuzz para saber el % de similitud
+            similarity = fuzz.token_sort_ratio(search_text, carrera_name)
+            # Se almacena si la similitud es mayor o igual al 50%
+            if similarity >= 50:
+                results.append(carrera_data)
+
+        if not results:
+            # No se encontraron resultados
+            return JsonResponse({'message': 'No se encontraron carreras que coincidan con la búsqueda'})
+        
+        # Obtén los productos que incluyen las carreras encontradas
+        product_results = []
+        for carrera_data in results:
+            carrera_id = carrera_data['id']
+            products, error = supabase_client.from_('usuarios_producto').select('*').eq('idCarrera_id', carrera_id).execute()
+            product_results.extend(products[1])
+        
+        if not product_results:
+            return JsonResponse({'message': 'No se encontraron productos para las carreras especificadas'})
+        
+        return JsonResponse({'results': product_results})
+    
+    return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+# Busqueda en usuarios por carrera
+@csrf_exempt
+@verificarToken
+def searchUSerCarreras(request):
+    if request.method == 'POST':
+        # Recibe el texto de la búsqueda de HTML
+        request_data = request.body        
+
+        try:
+            # Intenta analizar los datos JSON
+            data = json.loads(request_data)
+        except json.JSONDecodeError as e:
+            errors = {'message': 'Error en los datos JSON'}
+            return JsonResponse(errors, status=400)
+
+        # Obtiene los productos de la tabla 'productos' en Supabase
+        # Configura la conexión a Supabase
+        SUPABASE_URL = os.environ.get('SUPABASE_URL')
+        SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+        supabase_client  = supabase.Client(SUPABASE_URL, SUPABASE_KEY)
+
+        data.pop('token', None)
+        data.pop('nombreUser', None)
+        data.pop('id_User', None)
+        
+        # Obtiene todas las carreras desde la tabla 'usuarios_carrera'
+        carreras, error = supabase_client.from_('usuarios_carrera').select('*').execute()
+
+        # Realiza la búsqueda flexible y almacena las carreras con un 50% de similitud
+        results = []
+        search_text = data.get('nombre_carrera', '')
+        for carrera_data in carreras[1]:
+            carrera_name = carrera_data.get('nombre_carrera', '')
+            # Función fuzz para saber el % de similitud
+            similarity = fuzz.token_sort_ratio(search_text, carrera_name)
+            # Se almacena si la similitud es mayor o igual al 50%
+            if similarity >= 50:
+                results.append(carrera_data)
+
+        if not results:
+            # No se encontraron resultados
+            return JsonResponse({'message': 'No se encontraron carreras que coincidan con la búsqueda'})
+        
+        # Obtiene los usuarios
+        product_results = []
+        for carrera_data in results:
+            carrera_id = carrera_data['id']
+            products, error = supabase_client.from_('usuarios_usuarioestudiante').select('*').eq('idCarrera_id', carrera_id).execute()
+            product_results.extend(products[1])
+        
+        if not product_results:
+            return JsonResponse({'message': 'No se encontraron usuarios para las carreras especificadas'})
+        
+        return JsonResponse({'results': product_results})
+    
+    return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+#--------------------------------------------------------------------------
+#REPORTES PARA GRÁFICAS REACT
+@csrf_exempt
+@verificarToken
+def Top3ProductosCarrera(request):
+    if request.method == 'GET':
+        # Configura la conexión a Supabase
+        SUPABASE_URL = os.environ.get('SUPABASE_URL')
+        SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+        # Realiza una consulta a Supabase para obtener el recuento de productos por carrera
+        response = supabase.from_('usuarios_producto').select('idCarrera_id').execute()
+        data = response.data
+
+        # Calcula el recuento de productos por carrera
+        carrera_counts = {}
+        for row in data:
+            carrera = row['idCarrera_id']
+            if carrera in carrera_counts:
+                carrera_counts[carrera] += 1
+            else:
+                carrera_counts[carrera] = 1
+
+        # Ordena las carreras por la cantidad de productos y toma las tres primeras
+        top_carreras = sorted(carrera_counts.items(), key=lambda x: x[1], reverse=True)[:3]
+
+        # Consulta para obtener el mapeo de IDs de carrera a nombres
+        response = supabase.from_('usuarios_carrera').select('id, nombre_carrera').execute()
+        carreras_data = response.data
+
+        # Crea un diccionario de mapeo de ID de carrera a nombre
+        carreras_mapping = {row['id']: row['nombre_carrera'] for row in carreras_data}
+
+        # Reemplaza los IDs de carrera con nombres en la lista de las tres carreras
+        top_carreras_with_names = [(carreras_mapping[carrera[0]], carrera[1]) for carrera in top_carreras]
+
+        # Convierte los datos a formato JSON y envía una respuesta JSON
+        return JsonResponse(top_carreras_with_names, safe=False)
+    else:
+        return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@verificarToken
+def GeneralProductosCarrera(request):
+    if request.method == 'GET':
+        # Configura la conexión a Supabase
+        SUPABASE_URL = os.environ.get('SUPABASE_URL')
+        SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+        # Realiza una consulta a Supabase para obtener el recuento de productos por carrera
+        response = supabase.from_('usuarios_producto').select('idCarrera_id').execute()
+        data = response.data
+
+        # Calcula el recuento de productos por carrera
+        carrera_counts = {}
+        for row in data:
+            carrera = row['idCarrera_id']
+            if carrera in carrera_counts:
+                carrera_counts[carrera] += 1
+            else:
+                carrera_counts[carrera] = 1
+
+        # Ordena las carreras por la cantidad de productos y toma las tres primeras
+        top_carreras = sorted(carrera_counts.items(), key=lambda x: x[1], reverse=True)
+
+        # Consulta para obtener el mapeo de IDs de carrera a nombres
+        response = supabase.from_('usuarios_carrera').select('id, nombre_carrera').execute()
+        carreras_data = response.data
+
+        # Crea un diccionario de mapeo de ID de carrera a nombre
+        carreras_mapping = {row['id']: row['nombre_carrera'] for row in carreras_data}
+
+        # Reemplaza los IDs de carrera con nombres en la lista de las tres carreras
+        top_carreras_with_names = [(carreras_mapping[carrera[0]], carrera[1]) for carrera in top_carreras]
+
+        # Convierte los datos a formato JSON y envía una respuesta JSON
+        return JsonResponse(top_carreras_with_names, safe=False)
+    else:
+        return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@verificarToken
+def GeneralUsuariosCarrera(request):
+    if request.method == 'GET':
+        # Configura la conexión a Supabase
+        SUPABASE_URL = os.environ.get('SUPABASE_URL')
+        SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+        # Realiza una consulta a Supabase para obtener el recuento de estudiantes por carrera
+        response = supabase.from_('usuarios_usuarioestudiante').select('idCarrera_id').execute()
+        data = response.data
+
+        # Calcula el recuento de productos por carrera
+        carrera_counts = {}
+        for row in data:
+            carrera = row['idCarrera_id']
+            if carrera in carrera_counts:
+                carrera_counts[carrera] += 1
+            else:
+                carrera_counts[carrera] = 1
+
+        # Ordena las carreras por la cantidad de productos
+        top_carreras = sorted(carrera_counts.items(), key=lambda x: x[1], reverse=True)
+
+        # Consulta para obtener el mapeo de IDs de carrera a nombres
+        response = supabase.from_('usuarios_carrera').select('id, nombre_carrera').execute()
+        carreras_data = response.data
+
+        # Crea un diccionario de mapeo de ID de carrera a nombre
+        carreras_mapping = {row['id']: row['nombre_carrera'] for row in carreras_data}
+
+        # Reemplaza los IDs de carrera con nombres en la lista de las tres carreras
+        top_carreras_with_names = [(carreras_mapping[carrera[0]], carrera[1]) for carrera in top_carreras]
+
+        # Convierte los datos a formato JSON y envía una respuesta JSON
+        return JsonResponse(top_carreras_with_names, safe=False)
+    else:
+        return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@verificarToken
+def TotalUsuarios(request):
+    if request.method == 'GET':
+        # Configura la conexión a Supabase
+        SUPABASE_URL = os.environ.get('SUPABASE_URL')
+        SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+        # Realiza una consulta a Supabase para obtener el recuento de estudiantes por carrera
+        response = supabase.from_('usuarios_usuarioestudiante').select('id').execute()
+        data = response.data
+
+        # Calcula el recuento total de usuarios
+        total_usuarios = len(data)
+
+        # Convierte el total de usuarios a un formato JSON y envía una respuesta JSON
+        return JsonResponse({'total_usuarios': total_usuarios})
+    else:
+        return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@verificarToken
+def TotalPublicaciones(request):
+    if request.method == 'GET':
+        # Configura la conexión a Supabase
+        SUPABASE_URL = os.environ.get('SUPABASE_URL')
+        SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+        # Realiza una consulta a Supabase para obtener el recuento de estudiantes por carrera
+        response = supabase.from_('usuarios_producto').select('id').execute()
+        data = response.data
+
+        # Calcula el recuento total de usuarios
+        total_publicaciones = len(data)
+
+        # Convierte el total de usuarios a un formato JSON y envía una respuesta JSON
+        return JsonResponse({'total_publicaciones': total_publicaciones})
+    else:
+        return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@verificarToken
+def TotalCarreras(request):
+    if request.method == 'GET':
+        # Configura la conexión a Supabase
+        SUPABASE_URL = os.environ.get('SUPABASE_URL')
+        SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+        # Realiza una consulta a Supabase para obtener el recuento de estudiantes por carrera
+        response = supabase.from_('usuarios_carrera').select('id').execute()
+        data = response.data
+
+        # Calcula el recuento total de usuarios
+        total_carreras = len(data)
+
+        # Convierte el total de usuarios a un formato JSON y envía una respuesta JSON
+        return JsonResponse({'total_carreras': total_carreras})
+    else:
+        return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@verificarToken
+def TotalPublicidad(request):
+    if request.method == 'GET':
+        # Configura la conexión a Supabase
+        SUPABASE_URL = os.environ.get('SUPABASE_URL')
+        SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+        # Realiza una consulta a Supabase para obtener el recuento de estudiantes por carrera
+        response = supabase.from_('usuarios_proveedor').select('id').execute()
+        data = response.data
+
+        # Calcula el recuento total de usuarios
+        total_proveedores = len(data)
+
+        # Convierte el total de usuarios a un formato JSON y envía una respuesta JSON
+        return JsonResponse({'total_proveedores': total_proveedores})
+    else:
+        return JsonResponse({'message': 'Método no permitido'}, status=405)
+    

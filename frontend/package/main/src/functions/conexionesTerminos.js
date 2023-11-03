@@ -56,6 +56,24 @@ export const updateTerminos = async (datos) => {
     }
 };
 
+export const updateTerminosEstado = async (datos) => {
+    try {
+        const response = await axios.put(`http://localhost:8000/terminos/${datos.id}/editarEstado/`, datos, {
+            headers: {
+                'Authorization': datos.token,
+                'nombre-usuario': datos.nombre_usuario,
+                'id-user': datos.id_User,
+            }
+        });
+        return { success: true, data: response.data };
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            return { success: false, message: error.response.data.message };
+        }
+        return { success: false, message: 'Error al actualizar el Estado de Terminos y Condiciones' };
+    }
+};
+
 export const deleteTerminos = async (datos) => {
     try {
         const response = await axios.delete(`http://localhost:8000/terminos/${datos.id}/eliminar/`, {

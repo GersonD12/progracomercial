@@ -2,31 +2,27 @@ import { Row, Col } from 'reactstrap';
 import BreadCrumbs from '../../layouts/breadcrumbs/BreadCrumbs';
 
 import ProgressCards from '../../components/dashboard/modernDashboard/ProgressCards';
-import RevenueStatistics from '../../components/dashboard/modernDashboard/RevenueStatistics';
-import SalesMonth from '../../components/dashboard/modernDashboard/SalesMonth';
-import SalesPrediction from '../../components/dashboard/modernDashboard/SalesPrediction';
-import SalesDifference from '../../components/dashboard/modernDashboard/SalesDifference';
-import ProfileCard from '../../components/dashboard/modernDashboard/ProfileCard';
+import Top3CarrerasProductos from '../../components/dashboard/modernDashboard/Top3ProductosCarrera';
+import GeneralCarrerasProductos from '../../components/dashboard/modernDashboard/ProductosCarrera';
+import GeneralCarrerasEstudiantes from '../../components/dashboard/modernDashboard/EstudiantesCarrera';
 
 const Classic = () => {
   return (
     <>
+    <h1>Estadísticas Generales</h1><br/>
     <BreadCrumbs />
       <ProgressCards />
-      <RevenueStatistics />
       <Row>
         <Col lg="4">
-          <SalesMonth />
+          <GeneralCarrerasProductos />          
         </Col>
         <Col lg="4">
-          <SalesPrediction />
-          <SalesDifference />
+          <Top3CarrerasProductos />
         </Col>
         <Col lg="4">
-          <ProfileCard />
+          <GeneralCarrerasEstudiantes />
         </Col>
-      </Row>
-     
+      </Row>     
     </>
   );
 };

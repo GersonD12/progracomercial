@@ -40,7 +40,7 @@ const LoginFormik = () => {
                 <Formik
                   initialValues={initialValues}
                   validationSchema={validationSchema}
-                  onSubmit={async (fields) => {
+                  onSubmit={async (fields, actions) => {
                     try {
                       const response = await Login(fields);                                        
                       if (response && response.success) {
@@ -49,15 +49,16 @@ const LoginFormik = () => {
                         Cookies.set('username', fields.nombre_usuario); // Almacena el nombre de usuario
                         Cookies.set('userId', response.data.id); // Almacena el ID del usuario
                         console.log(response)
-                        alert('Inicio de sesión exitoso'); // Mensaje de éxito
-                        navigate('/');
+                        //alert('Inicio de sesión exitoso'); // Mensaje de éxito
+                        navigate('/dashboards/modern');
                       } else {
                         alert(response.message); // Mensaje de error
                         console.error(response.message);
+                        actions.resetForm();   
                       }
                     } catch (error) {
-                      alert('Error al iniciar sesión');
                       console.error(error);
+                      alert('Error al iniciar sesión');                 
                     }
                   }}
                   render={({ errors, touched }) => (
